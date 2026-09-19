@@ -41,6 +41,7 @@ pub fn process_take_instruction(accounts: &mut [AccountView]) -> ProgramResult {
     }; // ← RefMut guard dropped here
 
     // Re-derive the PDA
+    // let derived_addr = pinocchio::Address::from(pinocchio_pubkey::derive_address(
     let derived_addr = derive_address(
         &[b"escrow", maker.address().as_ref(), &[bump]],
         None,
@@ -48,6 +49,7 @@ pub fn process_take_instruction(accounts: &mut [AccountView]) -> ProgramResult {
     );
 
     // validate escrow belongs to this maker with this bump
+    // if derived_addr != *escrow_account.address() {
     if derived_addr != *escrow_account.address().as_array() {
         return Err(ProgramError::IllegalOwner);
     }
@@ -80,7 +82,7 @@ pub fn process_take_instruction(accounts: &mut [AccountView]) -> ProgramResult {
     .invoke()?;
 
     pinocchio_associated_token_account::instructions::CreateIdempotent {
-        funding_account: maker,
+        funding_account: taker,
         account: maker_ata_b,
         wallet: maker,
         mint: mint_b,
